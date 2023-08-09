@@ -1,3 +1,4 @@
+import User from "../models/userModel.js";
 import Book from "../models/bookModel.js";
 import BorrowBook from "../models/borrowBookModel.js";
 
@@ -8,6 +9,15 @@ const borrowBook = async (req, res) => {
     if (!isbn || !userId) {
       throw new Error("{ userId, isbn }This fields are required.");
     }
+
+    const user = await User.findOne({
+      userId: userId,
+    });
+
+    if (!user) {
+      throw new Error("No user found for the provided userId.");
+    }
+    const userMail = user.email;
 
     const existingBook = await Book.findOne({
       isbn: isbn,
@@ -27,6 +37,7 @@ const borrowBook = async (req, res) => {
 
     const newBorrowedbook = await BorrowBook.create({
       ...req.body,
+      userMail,
     });
 
     res.status(200).send({

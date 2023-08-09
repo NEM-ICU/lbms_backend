@@ -12,6 +12,10 @@ const borrowBookSchema = new Schema({
     required: true,
     unique: true,
   },
+  userMail: {
+    type: String,
+    required: true,
+  },
   returned: {
     type: Boolean,
     default: false,

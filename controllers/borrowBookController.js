@@ -64,9 +64,12 @@ const returnBook = async (req, res) => {
       throw new Error("This book has not been borrowed by this user.");
     }
 
-    const newBorrowedbook = await BorrowBook.create({
-      ...req.body,
-    });
+    const newBorrowedbook = await BorrowBook.findOneAndUpdate(
+      {
+        isbn: isbn,
+      },
+      { returned: true }
+    );
 
     res.status(200).send({
       message: "Book return successfully!",

@@ -29,7 +29,6 @@ const sendMail = async (receiver, message) => {
 // get the all data about non receiving books
 const getNonReceivingbookData = async () => {
   const today = new Date().toISOString().split("T")[0];
-  console.log(today);
   const data = await BorrowBook.find({
     $and: [{ returned: false }, { due_date: { $lte: today } }],
   });
@@ -57,23 +56,26 @@ const calculateLateFee = (due_date) => {
 const sendNotification = async () => {
   const nonReceivingbookData = await getNonReceivingbookData();
 
-  nonReceivingbookData.map((data) => {
+  for (const data of nonReceivingbookData) {
     const lateFee = calculateLateFee(data.due_date);
-    sendMail(
+    await sendMail(
       data.userMail,
       `This is a reminder to return the book you borrowed from our library. The due date for returning the book was ${data.due_date}, and we noticed that the book has not been returned yet.
-    As of today, your late fee for the book is ${lateFee}. Please return the book as soon as possible to avoid further late fees.
-    
-    Thank you,`
+      As of today, your late fee for the book is ${lateFee} LKR. Please return the book as soon as possible to avoid further late fees.
+      
+      Thank you,`
     );
-    console.log(data);
-  });
+
+    // 5-second delay before sending the next email
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
 };
 
 // scheduler
 const runCronScheduler = () => {
-  cron.schedule(" */5 * * * * *", () => {
-    sendNotification();
+  cron.schedule("* * */1 * *", () => {
+    // sendNotification();
+    console.log();
   });
 };
 export default runCronScheduler;

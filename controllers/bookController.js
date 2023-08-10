@@ -29,5 +29,12 @@ const createBook = async (req, res) => {
   }
 };
 
+const getAllBooks = async (req, res) => {
+  const data = await Book.find({});
+  // console.log(data);
+  res.status(200).send({
+    books: data,
+  });
+};
 
-export { createBook };
+export { createBook, getAllBooks };

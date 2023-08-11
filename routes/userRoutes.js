@@ -12,4 +12,7 @@ router.post("/signup", user.createUser);
 // login user route
 router.post("/login", user.loginUser);
 
+// profile route
+router.get("/profile", user.profile);
+
 export default router;

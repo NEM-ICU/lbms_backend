@@ -75,6 +75,7 @@ const loginUser = async (req, res) => {
     );
 
     res.status(200).send({
+      userId: user.userId,
       token,
     });
   } catch (error) {
@@ -83,4 +84,28 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { createUser, loginUser, test };
+const profile = async (req, res) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    // console.log(token);
+
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decodedToken.userId); // Use Mongoose to query for user
+
+    if (!user) {
+      throw new Error("Invalid token");
+    }
+
+    res.status(200).send({
+      username: user.username,
+      email: user.email,
+      name: user.name,
+    });
+  } catch (error) {
+    res.status(401).send({ message: error.message });
+  }
+};
+
+export { createUser, loginUser, test, profile };

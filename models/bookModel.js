@@ -15,6 +15,13 @@ const bookSchema = new Schema({
   category: {
     type: String,
   },
+  cover: {
+    type: String,
+  },
+
+  preview: {
+    type: String,
+  },
   author: {
     type: String,
   },

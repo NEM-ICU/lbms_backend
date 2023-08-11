@@ -73,9 +73,8 @@ const sendNotification = async () => {
 
 // scheduler
 const runCronScheduler = () => {
-  cron.schedule("* * */1 * *", () => {
+  cron.schedule("* */9 * * *", () => {
     // sendNotification();
-    console.log();
   });
 };
 export default runCronScheduler;

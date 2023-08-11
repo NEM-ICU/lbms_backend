@@ -79,4 +79,77 @@ const returnBook = async (req, res) => {
   }
 };
 
-export { borrowBook, returnBook };
+// const borrowedBooks = async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const borrowedBooks = await BorrowBook.find({
+//       userId: id,
+//     });
+
+//     res.status(200).send({
+//       data: borrowedBooks,
+//     });
+//   } catch (error) {
+//     res.status(401).send({ message: error.message });
+//   }
+// };
+
+const calculateLateFee = (due_date) => {
+  const currentDate = new Date();
+  const dueDate = new Date(due_date);
+
+  const lateFeeStartDate = new Date(dueDate);
+  lateFeeStartDate.setDate(lateFeeStartDate.getDate() + 3);
+
+  if (currentDate <= lateFeeStartDate) {
+    return 0; // No late fee within the grace period
+  } else {
+    const timeDifference = currentDate.getTime() - lateFeeStartDate.getTime();
+    const daysLate = Math.floor(timeDifference / (1000 * 3600 * 24));
+    const lateFeePerDay = 2; // Change this to your specific late fee per day
+    const lateFee = daysLate * lateFeePerDay;
+    return lateFee;
+  }
+};
+
+const borrowedBooks = async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Step 1: Fetch borrowed books using userId
+    const borrowedBooks = await BorrowBook.find({
+      userId: id,
+    });
+
+    // Step 2: Get an array of ISBN codes from borrowedBooks
+    const isbnCodes = borrowedBooks.map((book) => book.isbn);
+
+    // Step 3: Fetch book data using ISBN codes from Books collection
+    const booksData = await Book.find({
+      isbn: { $in: isbnCodes }, // Using $in operator to match multiple ISBNs
+    });
+
+    // Step 4: Combine borrowedBooks and booksData
+    const combinedData = borrowedBooks.map((borrowedBook) => {
+      const matchingBookData = booksData.find(
+        (book) => book.isbn === borrowedBook.isbn
+      );
+
+      const lateFee = calculateLateFee(borrowedBook.due_date); // Calculate the late fee
+
+      return {
+        ...borrowedBook.toObject(),
+        bookData: matchingBookData,
+        lateFee: lateFee, // Add late fee to the response
+      };
+    });
+
+    // Step 5: Send the combined response
+    res.status(200).send({
+      data: combinedData,
+    });
+  } catch (error) {
+    res.status(401).send({ message: error.message });
+  }
+};
+
+export { borrowBook, returnBook, borrowedBooks };

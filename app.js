@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const apple = runCronScheduler();
+const cron = runCronScheduler();
 
 app.use("/api/users", userRoutes);
 app.use("/api/books", bookRoutes);

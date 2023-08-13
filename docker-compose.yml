@@ -1,20 +1,25 @@
-version: "3.8"
+version: "3.9"
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "80:8000"
-    environment:
-      MONGO_URI: "mongodb://mongodb:27017/lbms" # Update this with your MongoDB configuration
-    depends_on:
-      - mongodb
-
-  mongodb:
+  mongo_db:
+    container_name: db_container
     image: mongo:latest
     restart: always
     ports:
-      - "27017:27017"
+      - 27017:27017
+    volumes:
+      - mongo_db:/data/db
+
+  api:
+    build: .
+    ports:
+      - 8000:8000
+    environment:
+      PORT: 8000
+      DB: mongodb://mongo_db:27017/lbms
+      JWT_SECRET: MY-ULTRA-SECRET-PASSWORD
+    depends_on:
+      - mongo_db
+
+volumes:
+  mongo_db: {}
